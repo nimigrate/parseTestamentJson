@@ -5,6 +5,7 @@ from std/os import quoteShellCommand
 import std/sets
 
 import ./types
+import ./typesMeth
 
 
 type MarkdownList* = object
@@ -50,14 +51,15 @@ func markdownList(node: JsonNode, asCodeKeys = initHashSet[string]()): MarkdownL
   ## only for RunRecord.node
   result = markdownList()
   for key in node.keys():
+    if key == NodeNameKey: continue
     var val = node[key].getStr()
     if key in asCodeKeys: val.asCode()
     result.addKeyVal key, val
 
 func markdownListSkipStatus*(self: RunRecord): MarkdownList =
   result = markdownList()
-  result.extendItems(markdownList(self.node, toHashSet ["expected", "given"]))
   result.addKeyVal "backend", $self.backend
   # no status
   result.addKeyVal "argv", self.args.quoteShellCommand.toInlineCode
+  result.extendItems(markdownList(self.node, toHashSet ["expected", "given"]))
  

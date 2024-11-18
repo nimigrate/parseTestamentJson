@@ -1,5 +1,6 @@
 
 import ./types
+import ./typesMeth
 import ./extract
 import ./typesFmt
 import std/sets
@@ -35,5 +36,6 @@ proc echoStatusDiffMap*() =
     echo key
     echo "=============="
     for d in res[key]:
+      echo "### " & d.filepath
       echo markdownListSkipStatus d
     echo '\n'
