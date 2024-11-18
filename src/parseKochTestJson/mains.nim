@@ -6,11 +6,12 @@ import std/sets
 import std/tables
 export sets
 
+const ExcludeStatus = {reSuccess, reJoined}
 
 template doWithNonSuccNode*(dir: string; doWith) =
   for rec in dir.parseDir:
     for d in rec.data:
-      if d.status != reSuccess:
+      if d.status not_in ExcludeStatus:
         doWith d
 
 const dir = "../testresult"
