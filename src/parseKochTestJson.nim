@@ -2,4 +2,5 @@
 import parseKochTestJson/mains
 
 when isMainModule:
-  echoAllStatus()
+  echo getAllStatus()
+  echoStatusDiffMap()
