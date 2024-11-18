@@ -40,7 +40,9 @@ func asCode(s: var string; lang=""; default="*None*") =
   if s.len == 0:
     s = default
     return
-  s = indent('\n' & "```"& lang & '\n' & s & "```", IndentSpaceN)
+  s = '\n' & "```"& lang & '\n' & s
+  if s[^1] not_in {'\n', '\r'}: s.add '\n'
+  s = indent(s & "```", IndentSpaceN)
 
 func toInlineCode(s: string): string = '`' & s & '`'
 
