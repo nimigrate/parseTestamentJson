@@ -6,7 +6,7 @@ description   = "Parser for nim's koch test result"
 license       = "MIT"
 srcDir        = "src"
 installExt    = @["nim"]
-bin           = @["parseKochTestJson"]
+bin           = @["parseTestamentJson"]
 
 
 # Dependencies

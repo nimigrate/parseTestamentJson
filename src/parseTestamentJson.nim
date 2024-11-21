@@ -1,5 +1,5 @@
 
-import parseKochTestJson/mains
+import parseTestamentJson/mains
 
 when isMainModule:
   echo getAllStatus()
