@@ -14,7 +14,7 @@ type MarkdownList* = object
   lines: seq[string]
 
 func markdownList*(prefix = "- "): MarkdownList =
-  result.prefix = prefix
+  result = MarkdownList(prefix: prefix)
 
 const IndentSpaceN = 2
 
@@ -41,7 +41,7 @@ func asCode(s: var string; lang=""; default="*None*") =
   if s.len == 0:
     s = default
     return
-  s = '\n' & "```"& lang & '\n' & s
+  s = '\n' & "```" & lang & '\n' & s
   if s[^1] not_in {'\n', '\r'}: s.add '\n'
   s = indent(s & "```", IndentSpaceN)
 
