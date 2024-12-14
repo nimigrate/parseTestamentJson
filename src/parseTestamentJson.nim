@@ -1,7 +1,14 @@
 
 import parseTestamentJson/mains
 import parseTestamentJson/cli
-from std/strutils import normalize
+import std/strutils
+
+func normalize(s: string): string =
+  ## as like Python's encoding name's normalize
+  s.multiReplace(
+    ("_", ""),
+    ("-", ""),
+  ).toLowerAscii()
 
 type MyCli = ref object of Cli
 

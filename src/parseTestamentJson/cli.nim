@@ -50,12 +50,14 @@ proc subCmdImpl(mself: NimNode; subcmd: NimNode, call: NimNode): NimNode =
     `mself`.map[`subcmd`] = `init`(`subcmd`, `call`, `doc`)
 
 macro subCmd*(mself: Cli; subcmd: string, call: CliCb) =
+  ## will use `call`'s docComment as `help` string
   subCmdImpl mself, subcmd, call
 
 macro subCmds*(mself: Cli;
-    map: varargs[(string, typed)]) =
+    subcmds: varargs[(string, typed)]) =
+  ## will use `call`'s docComment as `help` string
   result = newStmtList()
-  for kv in map:
+  for kv in subcmds:
     let
       k = newLit $kv[0]
       v = kv[1]
@@ -65,14 +67,17 @@ template keysToStr(m): string = m.keys().toSeq().`$`[1..^1]
 
 using self: Cli
 method onUnknownSubCmd*(self; subcmd: string){.base, noReturn.} =
+  ## called on unknown subcmd
   quit "one subcmd of " & self.map.keysToStr & " expected, but got " & subcmd.repr
 
 method onNoArgv*(self){.base, noReturn.} =
+  ## called when `argc == 1`
   quit "no argv is given"
 
 func isHelp(arg: string): bool = arg in ["-h", "--help", "-help"]
 
 proc run*(self: Cli; args = commandLineParams()) =
+  ## main routine that parse args and run according callback
   if args.len == 0:
     self.onNoArgv()
   let subcmd = args[0]
