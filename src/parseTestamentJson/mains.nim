@@ -30,12 +30,28 @@ proc getStatusDiffMap*: Table[TResultEnum, seq[RunRecord]] =
     result[d.status].add d
   dir.doWithNonSuccNode doWith
 
-proc echoStatusDiffMap*() =
+proc writeStatusDiffMap*[T](stream: T) =
   let res = getStatusDiffMap()
-  for key in res.keys():
-    echo key
+  for (key, ls) in res.pairs():
+    stream.writeLine key
     echo "=============="
-    for d in res[key]:
-      echo "### " & d.filepath
-      echo markdownListSkipStatus d
-    echo '\n'
+    for d in ls:
+      stream.writeLine "### " & d.filepath
+      stream.writeLine $(markdownListSkipStatus d)
+    stream.writeLine '\n'
+
+proc echoStatusDiffMap* =
+  ## echo status diff map
+  stdout.writeStatusDiffMap
+
+proc getAllTestName*: HashSet[string] =
+  for ls in getStatusDiffMap().values():
+    for d in ls:
+      result.incl d.filepath
+
+proc writeAllTestname*[T](stream: T) =
+  for i in getAllTestName(): stream.writeLine i
+
+proc echoAllTestname* =
+  ## all tests' file name
+  stdout.writeAllTestname
