@@ -41,10 +41,19 @@ template cliCbObj(key: string; cb: CliCb; help: string): CliCallbackObj{.dirty.}
 using mself: Cli
 #proc subCmds*(mself; map: openArray[(string, CliCallbackObj)]) = mself.map = map.toTable
 
+proc extractDocCommentsWithoutSharp(body: NimNode): string =
+  for st in body:
+    case st.kind
+    of nnkCommentStmt:
+      result.add st.`$`
+    else: break
+
 proc subCmdImpl(mself: NimNode; subcmd: NimNode, call: NimNode): NimNode =
   result = newStmtList()
-  var doc = extractDocCommentsAndRunnables call.getImpl.body
-  doc = newLit repr doc
+  var docStr = $subcmd
+  docStr.add ":\n"
+  docStr.add extractDocCommentsWithoutSharp call.getImpl.body
+  let doc = newLit docStr
   let init = bindSym"cliCbObj"
   result.add quote do:
     `mself`.map[`subcmd`] = `init`(`subcmd`, `call`, `doc`)
