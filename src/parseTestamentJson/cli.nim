@@ -24,14 +24,16 @@ type Nullary* = concept self
 
 template toCliCallback(cb; key): CliCallback =
     proc (e: EventArg){.closure.} =
-      if e.len != 0:
-        quit key.repr & " accept no argument"
-      cb()
+      when compiles(cb(e)): cb(e)
+      else:
+        if e.len != 0:
+          quit key.repr & " accept no argument"
+        cb()
 
 
 type CliCb = CliCallbackNullary|CliCallback|Nullary
 template cliCbObj(_: string; cb: CliCallback; help: string): CliCallbackObj = (cb, help)
-template cliCbObj(key: string; cb: CliCb; help: string): CliCallbackObj{.dirty.} =
+template cliCbObj(key: string; cb; help: string): CliCallbackObj{.dirty.} =
   bind cliCbObj, toCliCallback
   block:
    cliCbObj key,
