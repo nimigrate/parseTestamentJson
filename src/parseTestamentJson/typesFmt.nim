@@ -1,5 +1,5 @@
 
-from std/strutils import repeat, indent
+from std/strutils import repeat, indent, splitLines
 import std/json
 from std/os import quoteShellCommand
 import std/sets
@@ -10,7 +10,7 @@ import ./typesMeth
 
 type MarkdownList* = object
   nSpace*: int
-  prefix*{.requiresInit.}: string
+  prefix*: string = "- "
   lines: seq[string]
 
 func markdownList*(prefix = "- "): MarkdownList =
@@ -28,14 +28,33 @@ func `$`*(self; nSpace=self.nSpace; appendNewLine=true): string =
     result.add '\n'
   if appendNewLine: result.add '\n'
 
-func addItem*(self: var MarkdownList; line: string){.inline.} =
+iterator items*(self): string =
+  for i in self.lines.items(): yield i
+
+using self: var MarkdownList
+func addItem*(self; line: string){.inline.} =
   self.lines.add line
 
-func addKeyVal*(self: var MarkdownList; key, value: string) = self.addItem key & ": " & value
+func addKeyVal*(self; key, value: string) = self.addItem key & ": " & value
 
-func extendItems*(self: var MarkdownList; ls: sink MarkdownList) =
+func extendItems*(self; ls: sink MarkdownList) =
   #self.addItem `$`(ls, ls.nSpace, false)
   self.lines.add ls.lines
+
+func addSubItem*(self; head: string, ls: sink MarkdownList) =
+  var item = head
+  item.add '\n'
+  let spaces = ' '.repeat (self.nSpace + IndentSpaceN)
+  for i in ls:
+    item.add spaces
+    item.add ls.prefix
+    var ident = ""
+    for line in i.splitLines:
+      item.add ident
+      item.add line
+      ident = spaces
+    item.add '\n'
+  self.addItem item
 
 func asCode(s: var string; lang=""; default="*None*") =
   if s.len == 0:
