@@ -3,8 +3,10 @@ import ./types
 import ./typesMeth
 import ./extract
 import ./typesFmt
+from std/strutils import split
 import std/sets
 import std/tables
+import std/lists
 export sets
 
 const ExcludeStatus = {reSuccess, reJoined}
@@ -20,7 +22,7 @@ const dir = "../testresult"
 proc getAllStatus*: HashSet[TResultEnum] =
   template doWith(d) = result.incl d.status
   dir.doWithNonSuccNode doWith
-    
+
 
 proc getStatusDiffMap*: Table[TResultEnum, seq[RunRecord]] =
   #result = initTable[TResultEnum, seq[RunRecord]]()
@@ -52,6 +54,26 @@ proc getAllTestName*: HashSet[string] =
 proc writeAllTestname*[T](stream: T) =
   for i in getAllTestName(): stream.writeLine i
 
-proc echoAllTestname* =
+type MultiStrDict = Table[string, SinglyLinkedList[string]]
+
+proc getGroupedTestname*: MultiStrDict =
+  for i in getAllTestName():
+    let ls = i.split(FilePathSep, 1)
+    let (dir, name) = (ls[0], ls[1])
+    result.mgetOrPut(dir).add name
+
+proc writeGroupedAllTestname*[T](stream: T) =
+  var res = markdownList()
+  for (dir, names) in getGroupedTestname().pairs():
+    var sub = markdownList()
+    for name in names:
+      sub.addItem name
+    res.addSubItem dir, sub
+  stream.writeLine $res
+
+proc echoAllTestname*(markdown = false) =
   ## all tests' file name
-  stdout.writeAllTestname
+  if markdown:
+    stdout.writeGroupedAllTestname
+  else:
+    stdout.writeAllTestname
